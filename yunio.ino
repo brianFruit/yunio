@@ -77,54 +77,38 @@ void loop() {
 }
 
 void pushUpdate(int pinIdx) {
-  bool valueChange = false;
   
   if (pointArray[pinIdx].type >= 0) {
-    pinEvaluate(pinIdx, &valueChange);
+    pinEvaluate(pinIdx);
 
-    if (valueChange) {
-      String tuple = "";
-      for (int i=0 ; i<pointArray[pinIdx].numOutputs ; i++) {
-        tuple += String(pointArray[pinIdx].currentValue[i]) + ",";
-      }
-
-      Bridge.put(String(pinIdx), tuple);
-
+    String tuple = "";
+    for (int i=0 ; i<pointArray[pinIdx].numOutputs ; i++) {
+      tuple += String(pointArray[pinIdx].currentValue[i]) + ",";
     }
+
+    Bridge.put(String(pinIdx), tuple);
   }
 }
 
 // Update Arduino I/O Input Value
-void pinEvaluate(int pinIdx, bool *valueChange) {
+void pinEvaluate(int pinIdx) {
   if (pointArray[pinIdx].type == 0) {
     int newValue = analogRead(pinIdx);
-    if (newValue > pointArray[pinIdx].currentValue[0]*1.01 || 
-        newValue < pointArray[pinIdx].currentValue[0]*0.99) {
-       pointArray[pinIdx].currentValue[0] = newValue;
-       *valueChange = true;
-    }
-  } else if (pointArray[pinIdx].type == 2) {
+     pointArray[pinIdx].currentValue[0] = newValue;
+  } 
+  else if (pointArray[pinIdx].type == 2) {
     int newValue = digitalRead(pinIdx);
-    if (newValue > pointArray[pinIdx].currentValue[0]*1.01 || 
-        newValue < pointArray[pinIdx].currentValue[0]*0.99) {
-       pointArray[pinIdx].currentValue[0] = newValue;
-       *valueChange = true;
-    }
-  } else if (pointArray[pinIdx].type == 4) {
+    pointArray[pinIdx].currentValue[0] = newValue;
+  } 
+  else if (pointArray[pinIdx].type == 4) {
     int newHum = dht.getHumidity();
     int newTemp = dht.getTemperature();
-    if (newTemp > pointArray[pinIdx].currentValue[0]*1.01 || 
-        newTemp < pointArray[pinIdx].currentValue[0]*0.99 ||
-        newHum < pointArray[pinIdx].currentValue[1]*1.01 ||
-        newHum < pointArray[pinIdx].currentValue[1]*0.99){
-       pointArray[pinIdx].currentValue[0] = newTemp;
-       pointArray[pinIdx].currentValue[1] = newHum;
-       *valueChange = true;
-    }
-  } else if (pointArray[pinIdx].type > 4) {
+    pointArray[pinIdx].currentValue[0] = newTemp;
+    pointArray[pinIdx].currentValue[1] = newHum;
+  } 
+  else if (pointArray[pinIdx].type > 4) {
     for (int i=0 ; i<pointArray[pinIdx].numOutputs ; i++) {
       pointArray[pinIdx].currentValue[0] = -i;
-      *valueChange = true; // ??
     }
   }
 }
@@ -186,16 +170,16 @@ void actOn(String cmd) {
 
     if (type == 1) {
       analogWrite(pin, value);
-      *(pointArray[pin].currentValue) = value;
+      pointArray[pin].currentValue[0] = value;
       Console.print("write ANALOG value ");
-      Console.print(value);
+      Console.print(pointArray[pin].currentValue[0]);
       Console.print(" to pin ");
       Console.println(pin);
     } else if (type == 3) {
       digitalWrite(pin, value);
-      *(pointArray[pin].currentValue) = value;
+      pointArray[pin].currentValue[0] = value;
       Console.print("write DIGITAL value ");
-      Console.print(value);
+      Console.print(pointArray[pin].currentValue[0]);
       Console.print(" to pin ");
       Console.println(pin);
     } else {

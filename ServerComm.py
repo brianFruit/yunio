@@ -36,29 +36,29 @@ def push_update():
 
     run = True
     while run:
-        # post = False
+        post = False
         for io in io_state:
             new_val = value.get(io)
             old_val = io_state.get(io)
             if new_val != old_val:
                 io_state.update({io: new_val})
-                # post = True
+                post = True
             time.sleep(0.05)
 
-        # if post:
-        print "POSTING\n", io_state, "\nTO ENDPOINT ", db_endpoint
-        try:
-            io_state_json =  json.dumps(io_state)
-            post = urllib2.Request(db_endpoint, io_state_json, {'Content-Type': 'application/json'})
-            resp = urllib2.urlopen(post, timeout=5)
-            print resp.read()
-        except urllib2.HTTPError, e:
-            print 'HTTPError = ' + str(e.code)
-        except urllib2.URLError, e:
-            print 'URLError = ' + str(e.reason)
-        except Exception:
-            import traceback
-            print 'generic exception: ' + traceback.format_exc()
+        if post:
+            print "POSTING\n", io_state, "\nTO ENDPOINT ", db_endpoint
+            try:
+                io_state_json =  json.dumps(io_state)
+                post = urllib2.Request(db_endpoint, io_state_json, {'Content-Type': 'application/json'})
+                resp = urllib2.urlopen(post, timeout=5)
+                print resp.read()
+            except urllib2.HTTPError, e:
+                print 'HTTPError = ' + str(e.code)
+            except urllib2.URLError, e:
+                print 'URLError = ' + str(e.reason)
+            except Exception:
+                import traceback
+                print 'generic exception: ' + traceback.format_exc()
                 
         # run = False
 
@@ -96,6 +96,8 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
                 print queries
                 SERVER_IP = queries["ip_address"]
                 SERVER_PORT = queries["port"]
+                self.send_response(200)
+                self.end_headers()
             except Exception as e:
                 self.send_response(417)
                 self.end_headers()
