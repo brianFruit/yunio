@@ -28,9 +28,19 @@ for io in range(NUMIO):
 def keep_alive():
     while RUN:
         keepalive_endpoint = "http://" + SERVER_IP + ":" + str(SERVER_PORT) + "/keep-alive"
-        get = urllib2.Request(keepalive_endpoint)
-        urllib2.urlopen(get, timeout=5)
-        time.sleep(5)
+
+        try:
+            get = urllib2.Request(keepalive_endpoint)
+            resp = urllib2.urlopen(get, timeout=5)
+            # print resp.read()
+            time.sleep(5)
+        except urllib2.HTTPError, e:
+            print 'HTTPError = ' + str(e.code)
+        except urllib2.URLError, e:
+            print 'URLError = ' + str(e.reason)
+        except Exception:
+            import traceback
+            print 'generic exception: ' + traceback.format_exc()
 
 
 def push_update():
@@ -56,7 +66,7 @@ def push_update():
                 io_state_json =  json.dumps(io_state)
                 post = urllib2.Request(db_endpoint, io_state_json, {'Content-Type': 'application/json'})
                 resp = urllib2.urlopen(post, timeout=5)
-                print resp.read()
+                # print resp.read()
             except urllib2.HTTPError, e:
                 print 'HTTPError = ' + str(e.code)
             except urllib2.URLError, e:
