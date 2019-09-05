@@ -15,6 +15,7 @@ from bridgeclient import BridgeClient as bridgeclient
 NUMIO = 20
 SERVER_IP = None
 SERVER_PORT = None
+RUN = True
 
 
 ATmega_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -24,19 +25,23 @@ io_state = {}
 for io in range(NUMIO):
     io_state[str(io)] = None
 
-def push_update():
-    global SERVER_IP
-    while SERVER_IP is None or SERVER_PORT is None:
-        time.sleep(0.1) 
+def keep_alive():
+    while RUN:
+        keepalive_endpoint = "http://" + SERVER_IP + ":" + str(SERVER_PORT) + "/keep-alive"
+        get = urllib2.Request(keepalive_endpoint)
+        urllib2.urlopen(get, timeout=5)
+        time.sleep(5)
 
+
+def push_update():
     db_endpoint = "http://" + SERVER_IP + ":" + str(SERVER_PORT) + "/arduino-to-db"
 
-    value = bridgeclient() 
+    value = bridgeclient()
     global io_state
 
-    run = True
-    while run:
+    while RUN:
         post = False
+
         for io in io_state:
             new_val = value.get(io)
             old_val = io_state.get(io)
@@ -59,12 +64,6 @@ def push_update():
             except Exception:
                 import traceback
                 print 'generic exception: ' + traceback.format_exc()
-                
-        # run = False
-
-
-t = threading.Thread(target=push_update)
-t.start()
 
 
 class RestHTTPRequestHandler(BaseHTTPRequestHandler):
@@ -96,6 +95,12 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
                 print queries
                 SERVER_IP = queries["ip_address"]
                 SERVER_PORT = queries["port"]
+
+                t1 = threading.Thread(target=push_update)
+                t2 = threading.Thread(target=keep_alive)
+                t1.start()
+                t2.start()
+
                 self.send_response(200)
                 self.end_headers()
             except Exception as e:
@@ -124,3 +129,5 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 httpd = HTTPServer(('0.0.0.0', 9898), RestHTTPRequestHandler)
 while True:
     httpd.handle_request()
+
+RUN = False

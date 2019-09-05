@@ -33,7 +33,7 @@ An Arduino pin can be configured to 4 different types: Analog Input (AI), Analog
 ```
 Pin Type Code:
 AI - 0 
-A0 - 1
+AO - 1
 DI - 2
 DO - 3
 ```
