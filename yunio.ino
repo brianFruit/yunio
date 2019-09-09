@@ -39,12 +39,16 @@ void setup() {
     pointArray[i].isAlloc = false;
   }
 
-  // Serial.begin(9600);
-  Bridge.begin();
   Console.begin(); 
+  while (!Console); 
 
+  Console.println("Console started");
+
+  Bridge.begin();
+  Console.println("Bridge started");
+  
   // Wire.begin(4);
-  delay(1000);
+  delay(500);
   Console.println("System all green");
     
 }

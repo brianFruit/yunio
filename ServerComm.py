@@ -6,6 +6,7 @@ import json
 import threading
 import time
 import socket
+import sys
 from BaseHTTPServer import HTTPServer
 from BaseHTTPServer import BaseHTTPRequestHandler
 import sys
@@ -15,7 +16,6 @@ from bridgeclient import BridgeClient as bridgeclient
 NUMIO = 20
 SERVER_IP = None
 SERVER_PORT = None
-RUN = True
 
 
 ATmega_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -26,7 +26,7 @@ for io in range(NUMIO):
     io_state[str(io)] = None
 
 def keep_alive():
-    while RUN:
+    while True:
         keepalive_endpoint = "http://" + SERVER_IP + ":" + str(SERVER_PORT) + "/keep-alive"
 
         try:
@@ -38,9 +38,13 @@ def keep_alive():
             print 'HTTPError = ' + str(e.code)
         except urllib2.URLError, e:
             print 'URLError = ' + str(e.reason)
+        except (KeyboardInterrupt, SystemExit):
+            print "KeyboardInterrupt"
+            sys.exit()
         except Exception:
             import traceback
             print 'generic exception: ' + traceback.format_exc()
+            sys.exit()
 
 
 def push_update():
@@ -49,7 +53,7 @@ def push_update():
     value = bridgeclient()
     global io_state
 
-    while RUN:
+    while True:
         post = False
 
         for io in io_state:
@@ -71,9 +75,13 @@ def push_update():
                 print 'HTTPError = ' + str(e.code)
             except urllib2.URLError, e:
                 print 'URLError = ' + str(e.reason)
+            except (KeyboardInterrupt, SystemExit):
+                print "KeyboardInterrupt"
+                sys.exit()
             except Exception:
                 import traceback
                 print 'generic exception: ' + traceback.format_exc()
+                sys.exit()
 
 
 class RestHTTPRequestHandler(BaseHTTPRequestHandler):
@@ -97,11 +105,21 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
                 ATmega_socket.send(cmd)
                 self.send_response(200)
                 self.end_headers()
-            except Exception as e:
-                print e
+            except urllib2.HTTPError, e:
+                print 'HTTPError = ' + str(e.code)
+            except urllib2.URLError, e:
+                print 'URLError = ' + str(e.reason)
+            except (KeyboardInterrupt, SystemExit):
+                print "KeyboardInterrupt"
+                sys.exit()
+            except Exception:
+                import traceback
+                print 'generic exception: ' + traceback.format_exc()
+                sys.exit()
         else:
             try:
                 queries = self.parse_query(self.path)
+                print "Received Server IP and Port: "
                 print queries
                 SERVER_IP = queries["ip_address"]
                 SERVER_PORT = queries["port"]
@@ -113,10 +131,10 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
 
                 self.send_response(200)
                 self.end_headers()
-            except Exception as e:
+            except (KeyboardInterrupt, SystemExit):
                 self.send_response(417)
                 self.end_headers()
-                print e
+                sys.exit()
 
         return
 
@@ -140,4 +158,3 @@ httpd = HTTPServer(('0.0.0.0', 9898), RestHTTPRequestHandler)
 while True:
     httpd.handle_request()
 
-RUN = False
