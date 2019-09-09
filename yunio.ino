@@ -3,12 +3,12 @@
  * terms of the license, which is included in the project
  * root directory.
  */
-
-#include <Bridge.h>
+ 
 #include <Console.h>
-#include <Process.h>
-#include <Wire.h>
-#include <Servo.h>
+#include <Bridge.h>
+//#include <Process.h>
+//#include <Wire.h>
+//#include <Servo.h>
 #include "DHT.h"
 #define NUMIO 20
 
@@ -24,8 +24,8 @@ typedef struct {
 // Initialization
 point* pointArray = malloc(NUMIO * sizeof(point));
 
-Process p;
-Servo myservo;
+//Process p;
+//Servo myservo;
 DHT dht;
 
 String cmd;
@@ -39,16 +39,16 @@ void setup() {
     pointArray[i].isAlloc = false;
   }
 
-  Console.begin(); 
-  while (!Console); 
-
-  Console.println("Console started");
-
+  // Bridge must begin before Console!!
   Bridge.begin();
-  Console.println("Bridge started");
+  delay(500);
+  
+  Console.begin();
+  delay(500);
   
   // Wire.begin(4);
-  delay(500);
+  // delay(500);
+  
   Console.println("System all green");
     
 }
