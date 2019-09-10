@@ -9,6 +9,7 @@ import socket
 import sys
 from BaseHTTPServer import HTTPServer
 from BaseHTTPServer import BaseHTTPRequestHandler
+from datetime import datetime
 import sys
 sys.path.insert(0, '/usr/lib/python2.7/bridge/')
 from bridgeclient import BridgeClient as bridgeclient
@@ -35,16 +36,15 @@ def keep_alive():
             # print resp.read()
             time.sleep(5)
         except urllib2.HTTPError, e:
-            print 'HTTPError = ' + str(e.code)
+            print str(datetime.now()), 'HTTPError = ' + str(e.code)
         except urllib2.URLError, e:
-            print 'URLError = ' + str(e.reason)
+            print str(datetime.now()), 'URLError = ' + str(e.reason)
         except (KeyboardInterrupt, SystemExit):
-            print "KeyboardInterrupt"
+            print str(datetime.now()), "KeyboardInterrupt"
             sys.exit()
         except Exception:
             import traceback
-            print 'generic exception: ' + traceback.format_exc()
-            sys.exit()
+            print str(datetime.now()), 'generic exception: ' + traceback.format_exc()
 
 
 def push_update():
@@ -65,23 +65,23 @@ def push_update():
             time.sleep(0.05)
 
         if post:
-            print "POSTING\n", io_state, "\nTO ENDPOINT ", db_endpoint
+            print str(datetime.now()), "POSTING TO ENDPOINT ", db_endpoint, 
+            print io_state
             try:
                 io_state_json =  json.dumps(io_state)
                 post = urllib2.Request(db_endpoint, io_state_json, {'Content-Type': 'application/json'})
                 resp = urllib2.urlopen(post, timeout=5)
                 # print resp.read()
             except urllib2.HTTPError, e:
-                print 'HTTPError = ' + str(e.code)
+                print str(datetime.now()), 'HTTPError = ' + str(e.code)
             except urllib2.URLError, e:
-                print 'URLError = ' + str(e.reason)
+                print str(datetime.now()), 'URLError = ' + str(e.reason)
             except (KeyboardInterrupt, SystemExit):
-                print "KeyboardInterrupt"
+                print str(datetime.now()), "KeyboardInterrupt"
                 sys.exit()
             except Exception:
                 import traceback
-                print 'generic exception: ' + traceback.format_exc()
-                sys.exit()
+                print str(datetime.now()), 'generic exception: ' + traceback.format_exc()
 
 
 class RestHTTPRequestHandler(BaseHTTPRequestHandler):
@@ -106,21 +106,19 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
                 self.send_response(200)
                 self.end_headers()
             except urllib2.HTTPError, e:
-                print 'HTTPError = ' + str(e.code)
+                print str(datetime.now()), 'HTTPError = ' + str(e.code)
             except urllib2.URLError, e:
-                print 'URLError = ' + str(e.reason)
+                print str(datetime.now()), 'URLError = ' + str(e.reason)
             except (KeyboardInterrupt, SystemExit):
-                print "KeyboardInterrupt"
+                print str(datetime.now()), "KeyboardInterrupt"
                 sys.exit()
             except Exception:
                 import traceback
-                print 'generic exception: ' + traceback.format_exc()
-                sys.exit()
+                print str(datetime.now()), 'generic exception: ' + traceback.format_exc()
         else:
             try:
                 queries = self.parse_query(self.path)
-                print "Received Server IP and Port: "
-                print queries
+                print str(datetime.now()), "Received Server IP and Port: ", queries
                 SERVER_IP = queries["ip_address"]
                 SERVER_PORT = queries["port"]
 

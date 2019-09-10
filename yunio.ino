@@ -45,9 +45,10 @@ void setup() {
   
   Console.begin();
   delay(500);
+//  while(!Console);
   
-  // Wire.begin(4);
-  // delay(500);
+//  Wire.begin(4);
+//  delay(500);
   
   Console.println("System all green");
     

@@ -48,7 +48,7 @@ URL Path:
 3rd-5th digits specify the pin type code
 
 Example: configure pin 12 to DO
-http://[arduino_ip_address]/C<003
+http://[arduino_ip_address]:9898/C<003
 ```
 
 
@@ -62,12 +62,12 @@ URL Path:
 3rd-5th digits specify value the pin should output (ie. 0 - 255). Please note that any value >255 will overflow.
 
 Example: configure pin 12 to output high
-http://[arduino_ip_address]/A<001
+http://[arduino_ip_address]:9898/A<001
 ```
 
 ### Receiving Pin Update
 
-If there is any pin with >10% change in value, it will trigger an update. The ServerComm will periodically post a JSON string to the endpoint URL specified during step 2 of the Installation. The JSON string has pin number as the key and pin state/value as the value. 
+Any change of value of any pin will trigger an update sent to a server. The update is sent as a JSON string to the endpoint URL specified during step 2 of the Installation. The JSON string has pin number as the key and pin state/value as the value. 
 
 Make sure to always parse the value by comma separation as there could be more than one value returned by a pin. The "None" denotes that the specific pin was not yet configured.
 

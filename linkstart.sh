@@ -11,7 +11,7 @@ then
 	echo $process "already running"
     exit
 else
-    $makerun &
+    $makerun 2> /root/error.log &
 fi
         
 exit
