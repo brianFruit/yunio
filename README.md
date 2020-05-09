@@ -20,13 +20,13 @@ This is the step-by-step process to get it working:
 ```
 1. Upload yunio.ino into your Yun or Yun Shielded Arduino
 2. Edit ServerComm.py; update the URL variable with the actual endpoint that you would like your Arduino to push the I/O values to
-3. Upload ServerComm.py onto the Linino side
-4. Execute the ServerComm.py (preferablly with Cron so the process won't die when the ssh session is closed)
+3. Upload both ServerComm.py and linkstart.sh onto the Linino side
+4. Configure a cron job to run the linkstart.sh every minute: `* * * * * /root/linkstart.sh`
 ```
 
 ## Usage
 
-This will explain how to use the API.
+Below explains how to use the API.
 
 An Arduino pin can be configured to 4 different types: Analog Input (AI), Analog Output (AO), Digital Input (DI), Digital Output (DO). Please note that NOT ALL PINS ARE CREATED EQUAL, so check Arduino sepcifications to see if the certain pin number can indeed achieve the intended state. 
 
