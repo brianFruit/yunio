@@ -1,27 +1,23 @@
 #!/usr/bin/python
-
-"""
-Copyright (C) 2017-2018 Brian Xia
-You may use, distribute and modify this code under the
-terms of the license, which is included in the project
-root directory.
-"""
-
 import urllib2
+import urlparse
+import urllib
 import json
 import threading
 import time
 import socket
+import sys
 from BaseHTTPServer import HTTPServer
 from BaseHTTPServer import BaseHTTPRequestHandler
+from datetime import datetime
 import sys
 sys.path.insert(0, '/usr/lib/python2.7/bridge/')
 from bridgeclient import BridgeClient as bridgeclient
 
-
 NUMIO = 20
-# Endpoint to receive Arduino I/O values
-URL = "http://[server_ip_address]:port/path/"
+SERVER_IP = None
+SERVER_PORT = None
+
 
 ATmega_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 ATmega_socket.connect(('localhost', 6571))
@@ -30,13 +26,40 @@ io_state = {}
 for io in range(NUMIO):
     io_state[str(io)] = None
 
-def pushUpdate():
-    value = bridgeclient() 
+def keep_alive():
+    while True:
+        # keepalive_endpoint = "http://" + SERVER_IP + ":" + str(SERVER_PORT) + "/keep-alive"
+        keepalive_endpoint = "http://" + SERVER_IP + ":" + str(SERVER_PORT) + "/controlserver/keep-alive"
+
+        try:
+            get = urllib2.Request(keepalive_endpoint)
+            resp = urllib2.urlopen(get, timeout=5)
+            # print resp.read()
+            time.sleep(5)
+        except urllib2.HTTPError, e:
+            print str(datetime.now()), 'HTTPError = ' + str(e.code)
+        except urllib2.URLError, e:
+            print str(datetime.now()), 'URLError = ' + str(e.reason)
+        except (KeyboardInterrupt, SystemExit):
+            print str(datetime.now()), "KeyboardInterrupt"
+            sys.exit()
+        except IOError as ioe:
+            print "I/O error({0}): {1}".format(ioe.errno, ioe.strerror)
+        except Exception:
+            import traceback
+            print str(datetime.now()), 'generic exception: ' + traceback.format_exc()
+
+
+def push_update():
+    # db_endpoint = "http://" + SERVER_IP + ":" + str(SERVER_PORT) + "/arduino-to-db"
+    db_endpoint = "http://" + SERVER_IP + ":" + str(SERVER_PORT) + "/controlserver/arduino-to-db"
+
+    value = bridgeclient()
     global io_state
 
-    run = True
-    while run:
+    while True:
         post = False
+
         for io in io_state:
             new_val = value.get(io)
             old_val = io_state.get(io)
@@ -46,38 +69,94 @@ def pushUpdate():
             time.sleep(0.05)
 
         if post:
+            print str(datetime.now()), "POSTING TO ENDPOINT ", db_endpoint, 
             print io_state
             try:
                 io_state_json =  json.dumps(io_state)
-                post = urllib2.Request(URL, io_state_json, {'Content-Type': 'application/json'})
-                resp = urllib2.urlopen(post)
-                print resp.read()
+                post = urllib2.Request(db_endpoint, io_state_json, {'Content-Type': 'application/json'})
+                resp = urllib2.urlopen(post, timeout=5)
+                # print resp.read()
             except urllib2.HTTPError, e:
-                print 'HTTPError = ' + str(e.code)
+                print str(datetime.now()), 'HTTPError = ' + str(e.code)
             except urllib2.URLError, e:
-                print 'URLError = ' + str(e.reason)
+                print str(datetime.now()), 'URLError = ' + str(e.reason)
+            except (KeyboardInterrupt, SystemExit):
+                print str(datetime.now()), "KeyboardInterrupt"
+                sys.exit()
             except Exception:
                 import traceback
-                print 'generic exception: ' + traceback.format_exc()
-                
-        # run = False
+                print str(datetime.now()), 'generic exception: ' + traceback.format_exc()
 
 
-# Thread to constantly update I/O pin values
-t = threading.Thread(target=pushUpdate)
-t.start()
-
-
-# Light weight server to listen for command and then route to ATmega
 class RestHTTPRequestHandler(BaseHTTPRequestHandler):
+    
+    @staticmethod
+    def parse_query(path):
+        parsed_path = urlparse.urlparse(path)
+        queries = parsed_path.query.split("&")
+        query_dict = {}
+        for q in queries:
+            key, value = q.split("=")
+            query_dict[key] = value
+        return query_dict
+
     def do_GET(self):
-        cmd = self.path.split("/")[1] + "\n"
-        ATmega_socket.send(cmd)
-        self.send_response(200)
-        self.end_headers()
+        global SERVER_IP
+        global SERVER_PORT
+        if SERVER_IP is not None or SERVER_PORT is not None:
+            try:
+                cmd = urllib.unquote(self.path.split("/")[1]) + "\n"
+                ATmega_socket.send(cmd)
+                self.send_response(200)
+                self.end_headers()
+            except urllib2.HTTPError, e:
+                print str(datetime.now()), 'HTTPError = ' + str(e.code)
+            except urllib2.URLError, e:
+                print str(datetime.now()), 'URLError = ' + str(e.reason)
+            except (KeyboardInterrupt, SystemExit):
+                print str(datetime.now()), "KeyboardInterrupt"
+                sys.exit()
+            except Exception:
+                import traceback
+                print str(datetime.now()), 'generic exception: ' + traceback.format_exc()
+        else:
+            try:
+                queries = self.parse_query(self.path)
+                print str(datetime.now()), "Received Server IP and Port: ", queries
+                SERVER_IP = queries["ip_address"]
+                SERVER_PORT = queries["port"]
+
+                t1 = threading.Thread(target=push_update)
+                t2 = threading.Thread(target=keep_alive)
+                t1.start()
+                t2.start()
+
+                self.send_response(200)
+                self.end_headers()
+            except (KeyboardInterrupt, SystemExit):
+                self.send_response(417)
+                self.end_headers()
+                sys.exit()
+
         return
 
+    # def do_POST(self):
+    #     new_id = max(filter(lambda x: x['id'], TODOS))['id'] + 1
+    #     form = cgi.FieldStorage(fp=self.rfile,
+    #                        headers=self.headers, environ={
+    #                             'REQUEST_METHOD':'POST', 
+    #                             'CONTENT_TYPE':self.headers['Content-Type']
+    #                        })
+    #     new_title = form['title'].value
+    #     new_todo = {'id': new_id, 'title': new_title}
+    #     TODOS.append(new_todo)
+ 
+    #     self.send_response(201)
+    #     self.end_headers()
+    #     self.wfile.write(json.dumps(new_todo))
+    #     return
  
 httpd = HTTPServer(('0.0.0.0', 9898), RestHTTPRequestHandler)
 while True:
     httpd.handle_request()
+

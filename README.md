@@ -18,7 +18,7 @@ They are the hardware and software prerequisites:
 This is the step-by-step process to get it working:
 
 ```
-1. Upload yunio.io into your Yun or Yun Shielded Arduino
+1. Upload yunio.ino into your Yun or Yun Shielded Arduino
 2. Edit ServerComm.py; update the URL variable with the actual endpoint that you would like your Arduino to push the I/O values to
 3. Upload ServerComm.py onto the Linino side
 4. Execute the ServerComm.py (preferablly with Cron so the process won't die when the ssh session is closed)
