@@ -10,7 +10,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 They are the hardware and software prerequisites:
 
-* [Arduino Yun](https://store.arduino.cc/usa/arduino-yun) or Yun Shielded Arduino
+* [Arduino Yun](https://store.arduino.cc/usa/arduino-yun) or [Yun Shielded Arduino](https://wiki.dragino.com/index.php?title=Getting_Start_with_Arduino_Yun)
 * [Arduino IDE](https://www.arduino.cc/en/Main/Software)
 
 ### Installing
@@ -21,7 +21,7 @@ This is the step-by-step process to get it working:
 1. Upload yunio.ino into your Yun or Yun Shielded Arduino
 2. Edit ServerComm.py; update the URL variable with the actual endpoint that you would like your Arduino to push the I/O values to
 3. Upload both ServerComm.py and linkstart.sh onto the Linino side
-4. Configure a cron job to run the linkstart.sh every minute: `* * * * * /root/linkstart.sh`
+4. Configure a cron job to run the linkstart.sh every minute: * * * * * /root/linkstart.sh
 ```
 
 ## Usage

@@ -22,7 +22,7 @@ typedef struct {
 } point;
 
 // Initialization
-point* pointArray = malloc(NUMIO * sizeof(point));
+point* pointArray = (point*) malloc(NUMIO * sizeof(point));
 
 Process p;
 Servo myservo;
@@ -214,5 +214,3 @@ void actOn(String cmd) {
     }
   }
 }
-
-
