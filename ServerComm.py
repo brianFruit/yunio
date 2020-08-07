@@ -14,7 +14,7 @@ import sys
 sys.path.insert(0, '/usr/lib/python2.7/bridge/')
 from bridgeclient import BridgeClient as bridgeclient
 
-NUMIO = 20
+NUMIO = 54
 SERVER_IP = None
 SERVER_PORT = None
 

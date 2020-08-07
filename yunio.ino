@@ -10,7 +10,7 @@
 #include <Wire.h>
 #include <Servo.h>
 #include "DHT.h"
-#define NUMIO 20
+#define NUMIO 54
 
 bool DEBUG = false;
 
