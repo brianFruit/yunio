@@ -190,17 +190,9 @@ void actOn(String cmd) {
     if (type == 1) {
       analogWrite(pin, value);
       *(pointArray[pin].currentValue) = value;
-      Console.print("write ANALOG value ");
-      Console.print(value);
-      Console.print(" to pin ");
-      Console.println(pin);
     } else if (type == 3) {
       digitalWrite(pin, value);
       *(pointArray[pin].currentValue) = value;
-      Console.print("write DIGITAL value ");
-      Console.print(value);
-      Console.print(" to pin ");
-      Console.println(pin);
     } else {
       Console.println("Invalid Point Type");
     }
