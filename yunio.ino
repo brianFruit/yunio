@@ -6,9 +6,9 @@
 
 #include <Bridge.h>
 #include <Console.h>
-#include <Process.h>
-#include <Wire.h>
-#include <Servo.h>
+// #include <Process.h>
+// #include <Wire.h>
+// #include <Servo.h>
 #include "DHT.h"
 #define NUMIO 54
 
@@ -24,8 +24,8 @@ typedef struct {
 // Initialization
 point* pointArray = (point*) malloc(NUMIO * sizeof(point));
 
-Process p;
-Servo myservo;
+// Process p;
+// Servo myservo;
 DHT dht;
 
 String cmd;
@@ -40,7 +40,10 @@ void setup() {
   }
 
   // Serial.begin(9600);
+  delay(1000);
   Bridge.begin();
+
+  delay(1000);
   Console.begin(); 
 
   // Wire.begin(4);
@@ -132,7 +135,7 @@ void pinEvaluate(int pinIdx, bool *valueChange) {
 // Pre-configure arduino I/O
 void configurePoint(String cmd) {
   int pin = ((int) cmd[1]) - 48;
-  int type = (int) atoi(&cmd[2]);
+  int type = cmd.substring(2).toInt();
   
   pointArray[pin].type = type;
   if (type == 0 || type == 2) {
@@ -182,7 +185,7 @@ void actOn(String cmd) {
   int type = pointArray[pin].type;
   
   if (type >= 0) {
-    int value = atoi(&cmd[2]) % 256;
+    int value = cmd.substring(2).toInt() % 256;
 
     if (type == 1) {
       analogWrite(pin, value);
