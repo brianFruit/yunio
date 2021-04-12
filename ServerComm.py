@@ -11,6 +11,7 @@ from BaseHTTPServer import HTTPServer
 from BaseHTTPServer import BaseHTTPRequestHandler
 from datetime import datetime
 import sys
+import traceback
 sys.path.insert(0, '/usr/lib/python2.7/bridge/')
 from bridgeclient import BridgeClient as bridgeclient
 
@@ -45,8 +46,9 @@ def keep_alive():
             sys.exit()
         except IOError as ioe:
             print "I/O error({0}): {1}".format(ioe.errno, ioe.strerror)
-        except Exception:
-            import traceback
+        except Exception as e:
+            print("Generic error, keep_alive:", keepalive_endpoint)
+            print(e)
             print str(datetime.now()), 'generic exception: ' + traceback.format_exc()
 
 
@@ -83,8 +85,9 @@ def push_update():
             except (KeyboardInterrupt, SystemExit):
                 print str(datetime.now()), "KeyboardInterrupt"
                 sys.exit()
-            except Exception:
-                import traceback
+            except Exception as e:
+                print("Generic error, push_update:", io_state)
+                print(e)
                 print str(datetime.now()), 'generic exception: ' + traceback.format_exc()
 
 
@@ -116,8 +119,9 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
             except (KeyboardInterrupt, SystemExit):
                 print str(datetime.now()), "KeyboardInterrupt"
                 sys.exit()
-            except Exception:
-                import traceback
+            except Exception as e:
+                print("Generic error, server info:", SERVER_IP, SERVER_PORT
+                print(e)
                 print str(datetime.now()), 'generic exception: ' + traceback.format_exc()
         else:
             try:
@@ -137,6 +141,14 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
                 self.send_response(417)
                 self.end_headers()
                 sys.exit()
+            except ValueError as ve:
+                print("Arduino must be initialized before receiving commands.")
+                print("Payload received: " + self.path)
+                print(ve)
+            except Exception as e:
+                print("Generic error, threads alive?", t1.is_alive(), t2.is_alive())
+                print(e)
+                print str(datetime.now()), 'generic exception: ' + traceback.format_exc()
 
         return
 
