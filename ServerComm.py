@@ -120,7 +120,7 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
                 print str(datetime.now()), "KeyboardInterrupt"
                 sys.exit()
             except Exception as e:
-                print("Generic error, server info:", SERVER_IP, SERVER_PORT
+                print("Generic error, server info:", SERVER_IP, SERVER_PORT)
                 print(e)
                 print str(datetime.now()), 'generic exception: ' + traceback.format_exc()
         else:
