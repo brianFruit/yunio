@@ -8,10 +8,10 @@ makerun="python /root/ServerComm.py"
 
 if ps | grep -v grep | grep $process > /dev/null
 then
-	echo $process "already running"
+    echo $process "already running"
     exit
 else
-    $makerun 2> /root/error.log &
+    $makerun &> /root/error.log &
 fi
         
 exit
