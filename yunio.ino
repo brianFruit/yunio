@@ -139,7 +139,7 @@ void configurePoint(String cmd) {
   
   pointArray[pin].type = type;
   if (type == 0 || type == 2) {
-    pinMode(pin, INPUT);
+    pinMode(pin, INPUT_PULLUP);
     pointArray[pin].numOutputs = 1;
     if (!pointArray[pin].isAlloc) {
       pointArray[pin].currentValue = (int*)calloc(1, sizeof(int));
