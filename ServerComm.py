@@ -38,18 +38,18 @@ def keep_alive():
             # print resp.read()
             time.sleep(5)
         except urllib2.HTTPError, e:
-            print str(datetime.now()), 'HTTPError = ' + str(e.code)
+            print str(datetime.now()), 'Keep Alive HTTPError = ' + str(e.code)
+            time.sleep(60)
         except urllib2.URLError, e:
-            print str(datetime.now()), 'URLError = ' + str(e.reason)
+            print str(datetime.now()), 'Keep Alive URLError = ' + str(e.reason)
+            time.sleep(60)
         except (KeyboardInterrupt, SystemExit):
-            print str(datetime.now()), "KeyboardInterrupt"
+            print str(datetime.now()), "Keep Alive KeyboardInterrupt"
             sys.exit()
-        except IOError as ioe:
-            print "I/O error({0}): {1}".format(ioe.errno, ioe.strerror)
-        except Exception as e:
-            print("Generic error, keep_alive:", keepalive_endpoint)
-            print(e)
-            print str(datetime.now()), 'generic exception: ' + traceback.format_exc()
+        # except Exception as e:
+        #     print("Generic error, keep_alive:", keepalive_endpoint)
+        #     print(e)
+        #     print str(datetime.now()), 'generic exception: ' + traceback.format_exc()
 
 
 def push_update():
@@ -79,16 +79,18 @@ def push_update():
                 resp = urllib2.urlopen(post, timeout=5)
                 # print resp.read()
             except urllib2.HTTPError, e:
-                print str(datetime.now()), 'HTTPError = ' + str(e.code)
+                print str(datetime.now()), 'Push Update HTTPError = ' + str(e.code)
+                time.sleep(60)
             except urllib2.URLError, e:
-                print str(datetime.now()), 'URLError = ' + str(e.reason)
+                print str(datetime.now()), 'Push Update URLError = ' + str(e.reason)
+                time.sleep(60)
             except (KeyboardInterrupt, SystemExit):
                 print str(datetime.now()), "KeyboardInterrupt"
                 sys.exit()
-            except Exception as e:
-                print("Generic error, push_update:", io_state)
-                print(e)
-                print str(datetime.now()), 'generic exception: ' + traceback.format_exc()
+            # except Exception as e:
+            #     print("Generic error, push_update:", io_state)
+            #     print(e)
+            #     print str(datetime.now()), 'generic exception: ' + traceback.format_exc()
 
 
 class RestHTTPRequestHandler(BaseHTTPRequestHandler):
@@ -113,16 +115,16 @@ class RestHTTPRequestHandler(BaseHTTPRequestHandler):
                 self.send_response(200)
                 self.end_headers()
             except urllib2.HTTPError, e:
-                print str(datetime.now()), 'HTTPError = ' + str(e.code)
+                print str(datetime.now()), 'Commanding HTTPError = ' + str(e.code)
             except urllib2.URLError, e:
-                print str(datetime.now()), 'URLError = ' + str(e.reason)
+                print str(datetime.now()), 'Commanding URLError = ' + str(e.reason)
             except (KeyboardInterrupt, SystemExit):
                 print str(datetime.now()), "KeyboardInterrupt"
                 sys.exit()
-            except Exception as e:
-                print("Generic error, server info:", SERVER_IP, SERVER_PORT)
-                print(e)
-                print str(datetime.now()), 'generic exception: ' + traceback.format_exc()
+            # except Exception as e:
+            #     print("Generic error, server info:", SERVER_IP, SERVER_PORT)
+            #     print(e)
+            #     print str(datetime.now()), 'generic exception: ' + traceback.format_exc()
         else:
             try:
                 queries = self.parse_query(self.path)
